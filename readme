@@ -312,6 +312,58 @@ Also add "license": "MIT", inside the composer.json at core
     - if don't have .git file just command : composer require gulahack/php-mvc-core:^v1.0.3 --prefer-source
 
     - To remove back composer remove gulahack/php-mvc-core
+-----------------------------------
+CREATE SSH KEY FOR DEVICE
+-----------------------------------
+Kenapa jadi mcm ni sebab tukar repository daripada HTTPS ke SSH dan remote berubah: 
+    git remote add origin https://github.com/username/repo.git -> git remote add origin git@github.com:nabilzafarin/PHP-Mvc-Framework.git
+ Sekarang remote berubah daripada: HTTPS kepada SSH
 
-CREATE NEW REPO GITHUB FOR MVC FRAMEWORK
-    
+Apa itu SSH?
+SSH (Secure Shell) ialah satu protokol yang membolehkan komputer anda membuktikan identiti kepada server dengan selamat menggunakan sepasang kunci (key pair), tanpa menghantar kata laluan setiap kali.
+
+STEP 1: Jana SSH key
+Gunakan email yang anda gunakan untuk akaun GitHub.
+    > ssh-keygen -t ed25519 -C "your_email@example.com"
+
+STEP 2: Start SSH Agent
+    > eval "$(ssh-agent -s)"
+
+STEP 3: Tambahkan key ke agent
+    > ssh-add ~/.ssh/id_ed25519
+
+STEP 4: Semak
+    > ls -al ~/.ssh
+
+will see the output 
+    id_ed25519
+    id_ed25519.pub
+    known_hosts
+
+STEP 5: Salin public key
+    > cat ~/.ssh/id_ed25519.pub
+Output akan bermula dengan: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA...
+
+STEP 6: Tambah ke GitHub
+
+    1. Log masuk GitHub.
+    2. Klik gambar profil → Settings.
+    3. SSH and GPG keys.
+    4. New SSH key.
+    5. Beri nama contoh: MacBook Air
+    6. Paste public key.
+    7. Klik Add SSH key.
+
+STEP 7: Uji sambungan
+    > ssh -T git@github.com
+
+Output: Hi nabilzafarin! You've successfully authenticated, but GitHub does not provide shell access.
+
+STEP 8: Push
+    > git push -u origin main
+
+
+Nak tukar HTTPS ke SSH
+> git remote remove origin      
+> git remote -v
+> git remote add origin git@github.com:nabilzafarin/PHP-Mvc-Framework.git   
