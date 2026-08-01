@@ -314,3 +314,4 @@ Also add "license": "MIT", inside the composer.json at core
     - To remove back composer remove gulahack/php-mvc-core
 
 CREATE NEW REPO GITHUB FOR MVC FRAMEWORK
+    
