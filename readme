@@ -240,8 +240,8 @@ COMMAND TO PUSH:
     git add . : Stages all of your new and modified files, preparing them to be saved.
     git status
     git commit -m "your message" : Permanently saves your staged changes into your local version history.
-    git branch -M main : Renames your default local branch to "main" (the standard naming convention on GitHub).
-    git remote add origin <git@github.com:nabilzafarin/PHP-MCV-Core.git> : Connects your local folder to a newly created, empty remote repository on GitHub.
+    git branch -M main : Renames your default local branch to "main" (the standard naming convention on GitHub).    
+    git remote add origin git@github.com:nabilzafarin/PHP-MCV-Core.git : Connects your local folder to a newly created, empty remote repository on GitHub.
     git push -u origin main : Uploads your local saved code up to your online GitHub repository for the first time.
 
 CREATE ACCOUNT ADD PACKAGIST.ORG
@@ -312,3 +312,5 @@ Also add "license": "MIT", inside the composer.json at core
     - if don't have .git file just command : composer require gulahack/php-mvc-core:^v1.0.3 --prefer-source
 
     - To remove back composer remove gulahack/php-mvc-core
+
+CREATE NEW REPO GITHUB FOR MVC FRAMEWORK
