@@ -1,0 +1,314 @@
+Use PHP to Create an MVC Framework - Full Course 
+YT Link: https://youtu.be/6ERdu4k62wI?si=ztFmgGQupXqLoYfp
+
+DIFFERENCES MCV & LARAVEL
+MVC is an architectural pattern. Laravel is a PHP framework that implements MVC (and much more).
+- MVC = Blueprint (the design)
+- Laravel = House (built using that blueprint)
+
+
+WHAT ARE WE GOING TO BUILD?
+We are going to build fully functional MVC Framework using PHP 7.4 which can be installed and used using composer.
+
+SEVERAL FEATURES OF THE FRAMEWORK
+- Custom Routing                    - Validations
+- Composer                          - Registration/Login
+- Controllers                       - Simple Active Record
+- Views/Layouts                     - Session Flash messages
+- Models                            - Middlewares
+- Migrations                        - Application events
+- Form widget classes               - Framework reusable/installable core
+- Processing of request data
+
+STEPS WE DO IN TUTORIAL:  -- (*, symbols revering to hard and core)
+- Create Application and Router : 7:40
+- Enable autoloading using composer : 14:17
+*- Implement Routing : 19:20 + Create Vitual Host (Xampp) 
+- Create project Structure : 32:31
+*- Implement views & layouts : 36:03 
+*- Implement Controllers : 1:00:54 
+
+-----------------------------------
+LEARNING INFO: 
+-----------------------------------
+    To install composer to project
+        > composer init
+
+    Add autoload dependencies at composer.json
+        "autoload": {
+            "psr-4": {
+                "App\\": "./"
+            }
+        },
+    
+    Then, update the composer 
+        > composer update
+
+    Then can using above class label and call class
+        namespace App\core; -- label
+        use App\core\Router; -- call
+-----------------------------------
+VITUAL HOSTS: XAMMP
+-----------------------------------
+    Make Vitual Host server (changing "localhost/mvc_framework/public/" to "mvc-framework.test") -- for not give user have access to composer.json
+
+    1. Open File /Applications/XAMPP/etc/extra/httpd-vhosts.conf tambah Virtual Host server
+
+    <VirtualHost *:80>
+        DocumentRoot "/Applications/XAMPP/htdocs"
+        ServerName localhost
+
+        <Directory "/Applications/XAMPP/htdocs">
+            AllowOverride All
+            Require all granted
+        </Directory>
+    </VirtualHost>
+
+
+    <VirtualHost *:80>
+        DocumentRoot "/Applications/XAMPP/htdocs/mvc_framework/public"
+        ServerName mvc-framework.test
+
+        <Directory "/Applications/XAMPP/htdocs/mvc_framework/public">
+            AllowOverride All
+            Require all granted
+        </Directory>
+    </VirtualHost>
+
+    2. Enable Virtual Host - /Applications/XAMPP/etc/httpd.conf
+    - remove # to uncomment
+    Include etc/extra/httpd-vhosts.conf
+
+    3. Open Terminal + add 127.0.0.1 servername
+    > sudo nano /etc/hosts
+    ##
+    # Host Database
+    #
+    ##
+    127.0.0.1       localhost
+    255.255.255.255 broadcasthost
+    ::1             localhost
+    127.0.0.1       mvc-framework.test
+
+    > Control + O (save)
+    > Enter
+    > Control + X (exit)
+
+    4. Safari problem must have "http://" at URL like this (http://mvc-framework.test/contact),  if not it will open google.
+-----------------------------------
+ANONYMOUS DATA TYPE
+-----------------------------------
+    For anonymous functions data type
+     - Closure: Only anonymous functions
+     - callable: Anonymous functions, class methods, functions
+    
+    public function get(string $path, callable $callback) {...}
+-----------------------------------
+MIGRATIONS FOLDER + FILE    
+-----------------------------------
+Migrations is a file which contain the changes of the database. 
+
+In general are commited and push, so when ever someone else pull you repository and run some specify script it should apply migration to your local database.
+- We give the name for migrations class m0001_...php because class name cannot start with number and we can add another class like "m0002_something.php".
+
+ENV FILE
+
+ Using .env file must import this dependency inside composer
+ > composer require vlucas/phpdotenv
+ Then can using this command inside index.php and migrations.php
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+ Using it to database.php with PDO connection.
+
+-----------------------------------
+DBMODEL file (ORM - OBJECT-RELATIONAL MAPPING)
+-----------------------------------
+This will be a model which be a mapping, it to much like ORM models (object-relational mapping) 
+and it will map user model/classes into database tables.
+-----------------------------------
+DIFFERENCES DBMODEL, MODEL AND USERMODEL
+-----------------------------------
+Soalan ini sangat bagus sebab ini menyentuh design pattern MVC + Active Record. 
+Kenapa LoginForm extend Model, tetapi User extend DbModel?
+
+Jawapan ringkas:
+ - Model → untuk model yang hanya pegang data + validation + form logic (tidak terus berhubung dengan database).
+ - DbModel → untuk model yang mewakili database table dan perlu operasi (CRUD, query, table mapping).
+ - UserModel → Authentication & identity (login, current user, display  name, primary key untuk sesi, dll.)
+ - User → Implementasi sebenar model pengguna (users table)
+
+ https://chatgpt.com/s/t_6a6c0a47e0988191a59fba24e3f0d23f
+
+ Model (abstract)
+   ▲
+DbModel (abstract)
+   ▲
+UserModel (abstract)
+   ▲
+  User
+
+-----------------------------------
+CONCEPT FOR THIS MVC
+-----------------------------------
+Soalan ini bagus sebab ini adalah bahagian paling penting dalam 
+MVC framework: bagaimana data dari index.php boleh sampai ke 
+AuthController::register(Request $request).
+
+Jawapan pendek: 
+    index.php tidak pass $request secara terus.Yang create dan pass 
+    Request object ialah Router, kemudian Router panggil Controller method.
+
+                Browser
+                    |
+                    | GET /register
+                    |
+                    v
+                public/index.php
+                    |
+                    v
+                $app->run()
+                    |
+                    v
+                Application
+                    |
+                    v
+                Router->resolve()
+                    |
+                    v
+                new Request() + new Response() 
+                    |
+                    v
+        AuthController->register($request)
+
+*NOTES: We should never uses any class inside the core, with is outside the core 
+        because idea of the core it that same every installation and the rest of the file can be changes.
+-----------------------------------
+CLASS REFERENCE DYNAMIC
+-----------------------------------
+Soalan ini berkaitan dengan PHP class reference. User::class bukan memanggil file User.php, 
+tetapi mengambil nama penuh class (fully qualified class name) sebagai string.
+
+Dalam User.php: 
+    namespace App\models;
+
+    class User extends DbModel
+    {
+
+    }
+
+Bila anda tulis:
+    User::class
+PHP akan tukarkan kepada:
+    "App\models\User"
+
+Example: Dlm index.php
+    $config = [
+        'userClass' => \App\models\User::class, -- Use on this
+        'db' => [
+            'dsn' => $_ENV['DB_DSN'],
+            'user' => $_ENV['DB_USER'],
+            'password' => $_ENV['DB_PASSWORD'],
+        ]
+    ];
+
+So bila guna 'userClass': (Contoh dalam constructor Application.php)
+    $this->userClass::primaryKey();
+PHP baca: 
+    $className = "App\models\User";
+    $className::primaryKey();
+sama mcm: 
+    App\models\User::primaryKey(); 
+
+IMPORTANCE: dengan syarat primaryKey() static function, tidak kena buat Object untuk access.
+
+*NOTED: class reference and object instance 2 benda berbeza.
+-----------------------------------
+SUBTOPIC: MAKE CORE INSTALLABLE COMPOSER PACKAGE
+-----------------------------------
+This will make the core folder be packagist like autoload, you need install it and delete the original core.
+
+We want only Core folder will be publish. So, run this all command after > cd core.
+
+STEP 1: Create repository inside Git Hub and push by this command.
+STEP 2: Create package acc and submit package.
+
+REPOSITORY GITHUB
+    Create name repo PHP-MCV-Core
+COMMAND TO PUSH:
+    git init : Initializes a brand new, empty Git tracking system in your local folder.
+    git status :  Shows which files have been modified, deleted, or are currently untracked.
+    git add . : Stages all of your new and modified files, preparing them to be saved.
+    git status
+    git commit -m "your message" : Permanently saves your staged changes into your local version history.
+    git branch -M main : Renames your default local branch to "main" (the standard naming convention on GitHub).
+    git remote add origin <git@github.com:nabilzafarin/PHP-MCV-Core.git> : Connects your local folder to a newly created, empty remote repository on GitHub.
+    git push -u origin main : Uploads your local saved code up to your online GitHub repository for the first time.
+
+CREATE ACCOUNT ADD PACKAGIST.ORG
+    https://packagist.org - username: NabilShah pass:nabilP1P4
+
+SUBMIT PACKAGE
+    nabilshah@GulaHack-MacBook-Air core % composer init
+    Package name (<vendor>/<name>) [nabilshah/core]: ns/php-mvc-core
+    
+    Then, click all yes it will create composer.json and .gitignore inside core folder.
+
+PUSH COMPOSER.JSON AND .GITIGNORE FILE
+    git init
+    git status
+    git add .
+    git commit -m "Create composer.json and .gitignore"
+    git push -u origin main
+
+CREATE TAG inside GitHub
+    Create New Release 
+    Tag: Press Select Tag and Create new tag (v1.0.0)
+    Title: Inital release
+
+COPY LINK TO SUMBIT PACKAGE
+    
+    - Copy this link https://github.com/nabilzafarin/PHP-MCV-Core
+    - Paste on Packagist.org at page Submit Package on Repository URL (Git/Svn/Hg)
+    - It will check vendor name inside composer.json "name": "ns/php-mvc-core", ns already Used. Change to another vendor name "name": "gulahack/php-mvc-core". 
+    - Push back Composer.json file into github
+
+THE PACKAGE AT ANOTHER PROJECT
+
+Must changing the namespace inside all folder
+    App\core -> App\core
+
+by refering the autoload inside composer.json at core, if don't have at it inside composer.json
+        "autoload": {
+                "psr-4": {
+                    "gulahack\\PhpMvcCore\\": "src/"
+                }
+            },
+
+    - Then push to github and make a new release v1.0.2 with title "change namespace" so the packagist will pick up the latest version.
+    - Click update button at your page packagist : https://packagist.org/packages/gulahack/php-mvc-core
+
+Also add "license": "MIT", inside the composer.json at core
+    {
+        "name": "gulahack/php-mvc-core",
+        "license": "MIT",
+        "authors": [
+            {
+                "name": "GulaHack",
+                "email": "muhdnabilshah@gmail.com"
+            }
+        ],
+        "autoload": {
+            "psr-4": {
+                "gulahack\\PhpMvcCore\\": "src/"
+            }
+        },
+        "require": {}
+    }
+
+    - Then push to github and make a new release v1.0.3 with title "add license mit" so the packagist will pick up the latest version.
+    - Click update button at your page packagist : https://packagist.org/packages/gulahack/php-mvc-core
+    - Try run at command: composer require gulahack/php-mvc-core:dev-master or composer require gulahack/php-mvc-core:^v1.0.3
+    - Check the vendor folder it will see the gulahack/php-mvc-core folders that contain core inside it.
+    - if don't have .git file just command : composer require gulahack/php-mvc-core:^v1.0.3 --prefer-source
+
+    - To remove back composer remove gulahack/php-mvc-core
